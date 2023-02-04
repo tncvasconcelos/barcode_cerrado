@@ -1,6 +1,7 @@
-setwd("~/Desktop/metabarcode_cerrado/barcode_cerrado/new_results_Jun_2021")
+setwd("~/Desktop/barcode_cerrado/new_results_Jun_2021")
 # rm(list=ls())
 
+#devtools::install_github("joey711/phyloseq")
 library(phyloseq)
 library("data.table")
 library(bipartite)
@@ -8,7 +9,7 @@ library(ggplot2)
 #library(gplots)
 library(vegan)
 library("devtools")
-devtools::install_github('schuyler-smith/phylosmith')
+#devtools::install_github('schuyler-smith/phylosmith')
 library(phylosmith)
 
 #setwd("/Volumes/MBD-Storage/Project_global/data_ITS2/ITS2_Brazil_Meliponini.import")
@@ -58,7 +59,6 @@ taxa_names(data.species) <- tax_table(data.species)[,"species"]
 tail(tax_table(data.species))
 
 
-
 # check throughput
 sum(sample_sums(data.species) < 1000)
 sum(sample_sums(data.species) < 500)
@@ -82,15 +82,39 @@ data.species.rel = transform_sample_counts(data.species, function(x) x/sum(x))
 par(mar=c(4,15,1,1))
 barplot(t(as.data.frame(sort(taxa_sums(data.species)[1:50], decreasing=T))), las=2, horiz = T)
 
+
 # relative data and removal of rare taxa
 otu_table(data.species.rel)[otu_table(data.species.rel)<0.01 ]<-0
 otu_table(data.species)[otu_table(data.species.rel)<0.01 ]<-0
 data.filter		= prune_taxa(taxa_sums(data.species)>0, data.species)
 (data.rel.filter = prune_taxa(taxa_sums(data.species.rel)>0, data.species.rel))
 
+########################
+########################
+# Separating by bee species
+otus <- as.data.frame(otu_table(data.rel.filter))
+bees <- as.data.frame(sample_data(data.rel.filter))
+
+all_bees <- unique(bees$BeeSpecies)
+
+pdf("results_by_bees.pdf", height=10,width=8)
+for(bee_index in 1:length(all_bees)) {
+  one_bee <- all_bees[bee_index]
+  #bees0 <- subset(bees, bees$BeeSpecies==one_bee)
+  samples_bee0 <- row.names(subset(bees, bees$BeeSpecies==one_bee))
+  samples_otus_bee0 <- otus[,which(colnames(otus) %in% samples_bee0)]
+  par(mar=c(4,15,1,1))
+  try(barplot(t(sort(rowSums(samples_otus_bee0), decreasing=T)[1:50]), las=2, horiz = T, main=one_bee)) 
+}
+dev.off()
+
+########################
+########################
 # see count distribution of taxa after low-abundance filtering
 par(mar=c(4,15,1,1))
 barplot(t(as.data.frame(sort(taxa_sums(data.rel.filter), decreasing=T)[1:50])), las=2, horiz = T)
+
+
 write.table(as.data.frame(sort(taxa_sums(data.rel.filter), decreasing=T)[1:100]), file="most_abundant_taxa2.csv",sep=";")
 
 
@@ -108,8 +132,11 @@ data.rel.filter <-data.meli.rel
 data.filter <-data.meli
 
 (data.rel.filter = prune_taxa(taxa_sums(data.rel.filter)>0, data.rel.filter))
-taxa_sums(subset_taxa(data.rel.filter, genus=="Galinsoga") )
+#taxa_sums(subset_taxa(data.rel.filter, genus=="Galinsoga") )
 
+tax_table(data.filter) 
+otu_table(data.filter)
+sample_data(data.filter) 
 
 # Diversity and Species Richness (Observed)
 plot_richness(data.filter,x="BeeSpecies" , measures=c("Observed","Shannon"), col="Sample_type")+geom_boxplot() +theme_bw() + theme(axis.text.x = element_text(angle = 60, hjust = 1))# to group with metadata
