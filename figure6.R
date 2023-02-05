@@ -1,9 +1,9 @@
 
-setwd("~/Desktop/metabarcode_cerrado/barcode_cerrado")
+setwd("~/Desktop/barcode_cerrado")
 
-table_for_figure <- read.csv("For Fig 6 25 abr 2022.csv")
-table_for_figure <- table_for_figure[1:20,]
+table_for_figure <- read.csv("new_results_Jun_2021/abundance_table_Melipona rufiventris.csv")
+#table_for_figure <- table_for_figure[1:20,]
 
-rownames(table_for_figure) <- table_for_figure$species
-barplot(table_for_figure$X, names.arg=table_for_figure$species, las=2)
+rownames(table_for_figure) <- table_for_figure$X
+barplot(table_for_figure$abundance, names.arg=table_for_figure$X, las=2)
 

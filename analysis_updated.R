@@ -95,14 +95,16 @@ data.filter		= prune_taxa(taxa_sums(data.species)>0, data.species)
 otus <- as.data.frame(otu_table(data.rel.filter))
 bees <- as.data.frame(sample_data(data.rel.filter))
 
-all_bees <- unique(bees$BeeSpecies)
-
+all_bees <- unique(bees$BeeSpecies)[1:3]
 pdf("results_by_bees.pdf", height=10,width=8)
 for(bee_index in 1:length(all_bees)) {
   one_bee <- all_bees[bee_index]
   #bees0 <- subset(bees, bees$BeeSpecies==one_bee)
   samples_bee0 <- row.names(subset(bees, bees$BeeSpecies==one_bee))
   samples_otus_bee0 <- otus[,which(colnames(otus) %in% samples_bee0)]
+  one_table <- as.data.frame(sort(rowSums(samples_otus_bee0), decreasing=T)[1:20])
+  colnames(one_table) <- "abundance"
+  write.csv(one_table,file=paste0("abundance_table_",one_bee,".csv"))
   par(mar=c(4,15,1,1))
   try(barplot(t(sort(rowSums(samples_otus_bee0), decreasing=T)[1:50]), las=2, horiz = T, main=one_bee)) 
 }

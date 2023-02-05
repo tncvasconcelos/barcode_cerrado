@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # others
 .DS_Store
+old/
