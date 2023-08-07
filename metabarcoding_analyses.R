@@ -15,7 +15,7 @@ library(viridis)
 source('./metabarcoding_tools_0-1a.R')
 
 # load in data
-setwd("/Users/ra39huv/TMP/Basespace/ITS2/2023/ITS2_Aline_Martins/old_binf")
+setwd("./datasets")
 tax <- tax_table(as.matrix(read.table("taxonomy.vsearch", header=T,row.names=1,fill=T,sep=",")))
 otu <- otu_table(read.table("asv_table.merge.txt"), taxa_are_rows=T)
 map <- sample_data(read.table("sample_list.csv", sep=";", header=T,row.names=1))
